@@ -29,9 +29,6 @@ public class UserProvider {
     private String accessToken;
     private String refreshToken;
 
-    private LocalDateTime createdAt;
-    private LocalDateTime updatedAt;
-
     // many to one - this means that many providers like google or github can relate to one user
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id", nullable = false)

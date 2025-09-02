@@ -19,6 +19,9 @@ public class Oauth2UserService extends DefaultOAuth2UserService {
     @Autowired
     private UserProviderRepository userProviderRepository;
 
+    // if needed we can get tokens here to access the api on the users behalf
+    // for example if we need to get access to a google calender - otherwise everything else is handled frontend wise
+
     @Override
     public OAuth2User loadUser(OAuth2UserRequest request) {
         // get the user
@@ -44,6 +47,7 @@ public class Oauth2UserService extends DefaultOAuth2UserService {
                     newProvider.setUser(user);
                     newProvider.setProvider(provider);
                     newProvider.setProviderUserId(providerUserId);
+                    newProvider.setProviderEmail(email);
                     return userProviderRepository.save(newProvider);
 
                 });
