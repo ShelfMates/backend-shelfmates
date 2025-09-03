@@ -10,6 +10,8 @@ import org.springframework.security.oauth2.client.userinfo.OAuth2UserRequest;
 import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDateTime;
+
 @Service
 public class Oauth2UserService extends DefaultOAuth2UserService {
 
@@ -40,6 +42,7 @@ public class Oauth2UserService extends DefaultOAuth2UserService {
                         User newUser = new User();
                         newUser.setEmail(email);
                         newUser.setDisplayName(oAuth2User.getAttribute("name"));
+                        newUser.setCreatedAt(LocalDateTime.now());
                         return userRepository.save(newUser);
                     });
 
