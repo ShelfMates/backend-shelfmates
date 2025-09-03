@@ -1,4 +1,4 @@
-package com.dci.shelfmates.backend_shelfmates.service;
+package com.dci.shelfmates.backend_shelfmates.security;
 
 import com.dci.shelfmates.backend_shelfmates.model.Role;
 import com.dci.shelfmates.backend_shelfmates.model.User;
@@ -13,8 +13,6 @@ import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
-import java.util.HashSet;
-import java.util.List;
 
 @Service
 public class Oauth2UserService extends DefaultOAuth2UserService {

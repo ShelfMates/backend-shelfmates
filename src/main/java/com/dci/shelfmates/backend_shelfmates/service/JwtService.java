@@ -37,12 +37,14 @@ public class JwtService {
     public String generateToken(User user) {
         // to add more claims, just put them in the hashmap
         Map<String, Object> claims = new HashMap<>();
-        // like this 
+        // like this with roles
         claims.put("roles", user.getRoles().stream()
                 .map(role -> role.getName()).toList());
+        // or the email
+        claims.put("email", user.getEmail());
 
         return Jwts.builder().claims().add(claims)
-                .subject(user.getEmail())
+                .subject(String.valueOf(user.getId()))
                 .issuedAt(new Date(System.currentTimeMillis()))
                 .expiration(new Date(System.currentTimeMillis() + 60 * 60 * 60 * 30))
                 .and().signWith(getKey()).compact();
