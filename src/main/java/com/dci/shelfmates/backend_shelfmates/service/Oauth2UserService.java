@@ -1,7 +1,9 @@
 package com.dci.shelfmates.backend_shelfmates.service;
 
+import com.dci.shelfmates.backend_shelfmates.model.Role;
 import com.dci.shelfmates.backend_shelfmates.model.User;
 import com.dci.shelfmates.backend_shelfmates.model.UserProvider;
+import com.dci.shelfmates.backend_shelfmates.repository.RoleRepository;
 import com.dci.shelfmates.backend_shelfmates.repository.UserProviderRepository;
 import com.dci.shelfmates.backend_shelfmates.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -11,6 +13,8 @@ import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
+import java.util.HashSet;
+import java.util.List;
 
 @Service
 public class Oauth2UserService extends DefaultOAuth2UserService {
@@ -20,6 +24,8 @@ public class Oauth2UserService extends DefaultOAuth2UserService {
     private UserRepository userRepository;
     @Autowired
     private UserProviderRepository userProviderRepository;
+    @Autowired
+    private RoleRepository roleRepository;
 
     // if needed we can get tokens here to access the api on the users behalf
     // for example if we need to get access to a google calender - otherwise everything else is handled frontend wise
@@ -43,6 +49,13 @@ public class Oauth2UserService extends DefaultOAuth2UserService {
                         newUser.setEmail(email);
                         newUser.setDisplayName(oAuth2User.getAttribute("name"));
                         newUser.setCreatedAt(LocalDateTime.now());
+
+                        // fetch the default role "USER" from the db
+                        Role role = roleRepository.findByName("USER")
+                                .orElseThrow(() -> new RuntimeException("Role USER not found!"));
+
+                        newUser.getRoles().add(role);
+
                         return userRepository.save(newUser);
                     });
 
