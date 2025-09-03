@@ -1,6 +1,7 @@
 package com.dci.shelfmates.backend_shelfmates.service;
 
 import com.dci.shelfmates.backend_shelfmates.model.User;
+import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
@@ -13,26 +14,12 @@ import java.util.Base64;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.function.Function;
 
 @Service
 public class JwtService {
     // this needs to be an env variable
-    private String secretKey = "superverysecretkey";
-
-    public JwtService() {
-
-        // this will generate a secret key
-        // also: generating a key in the constructor will invalidate old tokens after a restart
-        try {
-            KeyGenerator keyGen = KeyGenerator.getInstance("HmacSHA256");
-            SecretKey sk = keyGen.generateKey();
-            secretKey = Base64.getEncoder().encodeToString(sk.getEncoded());
-        } catch (NoSuchAlgorithmException e) {
-            throw new RuntimeException(e);
-        }
-    }
-
-
+    private String secretKey = "superverysecretkeysuperverysecretkeysuperverysecretkeysuperverysecretkeysuperverysecretkeysuperverysecretkey";
 
     public String generateToken(User user) {
         // to add more claims, just put them in the hashmap
@@ -52,7 +39,21 @@ public class JwtService {
 
     private SecretKey getKey() {
         byte[] keyBites = Decoders.BASE64.decode(secretKey);
-
         return Keys.hmacShaKeyFor(keyBites);
+    }
+
+    public String extractSubject(String token) {
+        // extract the email from jwt token
+        return extractClaim(token, Claims::getSubject);
+    }
+
+    private <T> T extractClaim(String token, Function<Claims, T> claimResolver) {
+        // this will fetch an extract the claims
+        final Claims claims = extractAllClaims(token);
+        return claimResolver.apply(claims);
+    }
+
+    private Claims extractAllClaims(String token) {
+        return Jwts.parser().verifyWith(getKey()).build().parseSignedClaims(token).getPayload();
     }
 }

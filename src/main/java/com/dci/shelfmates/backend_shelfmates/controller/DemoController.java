@@ -12,10 +12,10 @@ public class DemoController {
     @GetMapping("/public")
     public String publicApi(){ return "Welcome to the public API";}
 
-    @GetMapping("/private")
-    public String privateApi(OAuth2AuthenticationToken token) {
-        System.out.println(token.getPrincipal().getAttributes());
-        return "You are authenticated! " + token.getPrincipal().getAttribute("email");
-    }
+//    @GetMapping("/private")
+//    public String privateApi(OAuth2AuthenticationToken token) {
+//        System.out.println(token.getPrincipal().getAttributes());
+//        return "You are authenticated! " + token.getPrincipal().getAttribute("email");
+//    }
 
 }
