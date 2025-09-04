@@ -1,5 +1,6 @@
 package com.dci.shelfmates.backend_shelfmates.controller;
 
+import com.dci.shelfmates.backend_shelfmates.dto.LoginUserRequest;
 import com.dci.shelfmates.backend_shelfmates.dto.RegisterUserRequest;
 import com.dci.shelfmates.backend_shelfmates.model.User;
 import com.dci.shelfmates.backend_shelfmates.service.UserService;
@@ -32,6 +33,24 @@ public class AuthController {
                 .header(HttpHeaders.SET_COOKIE, cookie.toString())
                 .body("User " + request.getDisplayName() + " registered successfully!");
     }
+
+    @PostMapping("/login")
+    public ResponseEntity<?> login(@RequestBody LoginUserRequest request) {
+        System.out.println("Hello from the controller!");
+        String jwt = userService.login(request);
+        ResponseCookie cookie = ResponseCookie.from("jwt", jwt)
+                                              .httpOnly(true)
+                                              .path("/")
+                                              .maxAge(24 * 60 * 60)
+                                              .build();
+
+        return ResponseEntity.ok()
+                             .header(HttpHeaders.SET_COOKIE, cookie.toString())
+                             .body("Login for " + request.email() + " was successful!" );
+    }
+
+
+
 
     // this is just a test for a "me" endpoint that will later be used in the frontend
     @GetMapping("/meme")
