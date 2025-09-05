@@ -2,6 +2,7 @@ package com.dci.shelfmates.backend_shelfmates.controller;
 
 import com.dci.shelfmates.backend_shelfmates.dto.LoginUserRequest;
 import com.dci.shelfmates.backend_shelfmates.dto.RegisterUserRequest;
+import com.dci.shelfmates.backend_shelfmates.dto.UpdateUserRequest;
 import com.dci.shelfmates.backend_shelfmates.model.User;
 import com.dci.shelfmates.backend_shelfmates.service.UserService;
 import lombok.RequiredArgsConstructor;
@@ -56,8 +57,13 @@ public class AuthController {
         return ResponseEntity.noContent().build();
     }
 
+    @PreAuthorize("hasRole('ADMIN') or #id == principal.id")
+    @PutMapping("/{id}")
+    public ResponseEntity<String> update(@PathVariable Long id, @RequestBody UpdateUserRequest request) {
+        userService.update(id, request);
 
-
+        return ResponseEntity.ok("User information changed successfully!");
+    }
 
     // this is just a test for a "me" endpoint that will later be used in the frontend
     @GetMapping("/meme")
