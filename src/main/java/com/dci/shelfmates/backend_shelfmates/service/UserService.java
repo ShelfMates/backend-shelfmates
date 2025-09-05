@@ -6,6 +6,7 @@ import com.dci.shelfmates.backend_shelfmates.model.Role;
 import com.dci.shelfmates.backend_shelfmates.model.User;
 import com.dci.shelfmates.backend_shelfmates.repository.RoleRepository;
 import com.dci.shelfmates.backend_shelfmates.repository.UserRepository;
+import com.dci.shelfmates.backend_shelfmates.security.JwtService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -32,8 +33,11 @@ public class UserService {
             throw new RuntimeException("Email already taken!");
         }
 
-        Role userRole = roleRepository.findByName("USER")
+        Role userRole = roleRepository.findByName("ROLE_USER")
                                       .orElseThrow(() -> new RuntimeException("Default role not found"));
+        // this is just for testing
+//        Role admin = roleRepository.findByName("ROLE_ADMIN")
+//                                   .orElseThrow(() -> new RuntimeException("Default role not found"));
 
         User newUser = User.builder()
                 .email(request.getEmail())
@@ -62,5 +66,11 @@ public class UserService {
         User user = userRepository.findByEmail(request.email())
                 .orElseThrow(() -> new RuntimeException("User: " + request.email() + " not found!"));
         return jwtService.generateToken(user);
+    }
+
+    public void delete(Long id) {
+        User user = userRepository.findById(id)
+                                  .orElseThrow(() -> new RuntimeException("User not found!"));
+        userRepository.delete(user);
     }
 }

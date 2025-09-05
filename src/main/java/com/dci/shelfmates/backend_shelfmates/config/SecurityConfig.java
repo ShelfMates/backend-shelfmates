@@ -3,7 +3,7 @@ package com.dci.shelfmates.backend_shelfmates.config;
 import com.dci.shelfmates.backend_shelfmates.security.JwtCookieFilter;
 import com.dci.shelfmates.backend_shelfmates.security.OAuth2LoginSuccessHandler;
 import com.dci.shelfmates.backend_shelfmates.security.Oauth2UserService;
-import com.dci.shelfmates.backend_shelfmates.service.CustomUserDetailsService;
+import com.dci.shelfmates.backend_shelfmates.security.CustomUserDetailsService;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
@@ -12,7 +12,7 @@ import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.ProviderManager;
 import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
 import org.springframework.security.config.Customizer;
-import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
+import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.http.SessionCreationPolicy;
@@ -25,6 +25,7 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 @Configuration
 @EnableWebSecurity
 @RequiredArgsConstructor
+@EnableMethodSecurity
 public class SecurityConfig {
 
     private final OAuth2LoginSuccessHandler successHandler;

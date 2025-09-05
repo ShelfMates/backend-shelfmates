@@ -49,7 +49,7 @@ public class Oauth2UserService extends DefaultOAuth2UserService {
                         newUser.setCreatedAt(LocalDateTime.now());
 
                         // fetch the default role "USER" from the db
-                        Role role = roleRepository.findByName("USER")
+                        Role role = roleRepository.findByName("ROLE_USER")
                                 .orElseThrow(() -> new RuntimeException("Role USER not found!"));
 
                         newUser.getRoles().add(role);

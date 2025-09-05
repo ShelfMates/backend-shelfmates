@@ -1,4 +1,4 @@
-package com.dci.shelfmates.backend_shelfmates.service;
+package com.dci.shelfmates.backend_shelfmates.security;
 
 import com.dci.shelfmates.backend_shelfmates.model.User;
 import com.dci.shelfmates.backend_shelfmates.repository.UserRepository;
@@ -31,10 +31,11 @@ public class CustomUserDetailsService implements UserDetailsService {
                 .collect(Collectors.toSet());
 
         // this will return a user type from spring security
-        return new org.springframework.security.core.userdetails.User(
-                user.getEmail(),
-                user.getPassword(),
-                authorities
-        );
+//        return new org.springframework.security.core.userdetails.User(
+//                user.getEmail(),
+//                user.getPassword(),
+//                authorities
+//        );
+        return new CustomUserDetails(user.getId(), user.getEmail(), user.getPassword(), authorities);
     }
 }

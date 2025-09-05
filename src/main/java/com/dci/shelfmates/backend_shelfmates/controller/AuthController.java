@@ -8,6 +8,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseCookie;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 
@@ -36,7 +37,6 @@ public class AuthController {
 
     @PostMapping("/login")
     public ResponseEntity<?> login(@RequestBody LoginUserRequest request) {
-        System.out.println("Hello from the controller!");
         String jwt = userService.login(request);
         ResponseCookie cookie = ResponseCookie.from("jwt", jwt)
                                               .httpOnly(true)
@@ -47,6 +47,13 @@ public class AuthController {
         return ResponseEntity.ok()
                              .header(HttpHeaders.SET_COOKIE, cookie.toString())
                              .body("Login for " + request.email() + " was successful!" );
+    }
+
+    @PreAuthorize("hasRole('ADMIN') or #id == principal.id")
+    @DeleteMapping("/{id}")
+    public ResponseEntity<Void> delete(@PathVariable Long id) {
+        userService.delete(id);
+        return ResponseEntity.noContent().build();
     }
 
 

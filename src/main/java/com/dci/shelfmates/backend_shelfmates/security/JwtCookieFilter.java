@@ -2,7 +2,6 @@ package com.dci.shelfmates.backend_shelfmates.security;
 
 import com.dci.shelfmates.backend_shelfmates.model.User;
 import com.dci.shelfmates.backend_shelfmates.repository.UserRepository;
-import com.dci.shelfmates.backend_shelfmates.service.JwtService;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.Cookie;

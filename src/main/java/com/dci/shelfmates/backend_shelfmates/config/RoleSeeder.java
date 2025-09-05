@@ -18,7 +18,7 @@ public class RoleSeeder implements CommandLineRunner {
     // if not the role will be added to the database
     @Override
     public void run(String... args) {
-        List<String> roles = List.of("USER", "ADMIN");
+        List<String> roles = List.of("ROLE_USER", "ROLE_ADMIN");
 
         for(String roleName : roles) {
             roleRepository.findByName(roleName).orElseGet(() -> {
