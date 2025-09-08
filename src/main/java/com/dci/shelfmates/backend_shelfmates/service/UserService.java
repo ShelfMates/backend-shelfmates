@@ -3,6 +3,7 @@ package com.dci.shelfmates.backend_shelfmates.service;
 import com.dci.shelfmates.backend_shelfmates.dto.LoginUserRequest;
 import com.dci.shelfmates.backend_shelfmates.dto.RegisterUserRequest;
 import com.dci.shelfmates.backend_shelfmates.dto.UpdateUserRequest;
+import com.dci.shelfmates.backend_shelfmates.exception.UserNotFoundException;
 import com.dci.shelfmates.backend_shelfmates.model.Role;
 import com.dci.shelfmates.backend_shelfmates.model.User;
 import com.dci.shelfmates.backend_shelfmates.repository.RoleRepository;
@@ -96,11 +97,9 @@ public class UserService {
     @Transactional
     public void delete(Long id) {
         User user = userRepository.findById(id)
-                                  .orElseThrow(() -> new RuntimeException("User not found!"));
+                                  .orElseThrow(() -> new UserNotFoundException(id));
 
         // this is needed to avoid hibernate conflict with loading several sets at the same time
-        // remove user from all roles users sets
-        // user.getRoles().forEach(role -> role.getUsers().remove(user));
 
         List<Role> roles = new ArrayList<>(user.getRoles());
         for (Role role : roles) {
