@@ -69,14 +69,14 @@ public class UserService {
 
         // generate a token for the authenticated user
         User user = userRepository.findByEmail(request.email())
-                .orElseThrow(() -> new RuntimeException("User: " + request.email() + " not found!"));
+                .orElseThrow(() -> new UserNotFoundException(request.email()));
         return jwtService.generateToken(user);
     }
 
     @Transactional
     public User update(Long id, UpdateUserRequest request) {
         User user = userRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("User not found"));
+                .orElseThrow(() -> new UserNotFoundException(id));
 
         // update fields
         if(request.password() != null && !request.password().isBlank()) {

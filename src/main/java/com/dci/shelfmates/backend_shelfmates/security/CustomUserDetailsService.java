@@ -1,5 +1,6 @@
 package com.dci.shelfmates.backend_shelfmates.security;
 
+import com.dci.shelfmates.backend_shelfmates.exception.UserNotFoundException;
 import com.dci.shelfmates.backend_shelfmates.model.User;
 import com.dci.shelfmates.backend_shelfmates.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
@@ -21,9 +22,9 @@ public class CustomUserDetailsService implements UserDetailsService {
 
     // there has to be a better way instead of using mail - this is not desciptive enough
     @Override
-    public UserDetails loadUserByUsername(String email) throws UsernameNotFoundException {
+    public UserDetails loadUserByUsername(String email) throws UserNotFoundException {
         User user = userRepository.findByEmail(email).orElseThrow(
-                () -> new UsernameNotFoundException("User not found: " + email));
+                () -> new UserNotFoundException(email));
 
         // map the user roles to granted authorities (these are for spring securities internal system)
         Set<GrantedAuthority> authorities = user.getRoles().stream()
