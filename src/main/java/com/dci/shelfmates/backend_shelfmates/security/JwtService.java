@@ -40,7 +40,7 @@ public class JwtService {
     }
 
     public String extractSubject(String token) {
-        // extract the email from jwt token
+        // extract the id from jwt token
         return extractClaim(token, Claims::getSubject);
     }
 

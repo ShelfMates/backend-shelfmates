@@ -3,10 +3,13 @@ package com.dci.shelfmates.backend_shelfmates.integration;
 
 import com.dci.shelfmates.backend_shelfmates.dto.LoginUserRequest;
 import com.dci.shelfmates.backend_shelfmates.dto.RegisterUserRequest;
+import com.dci.shelfmates.backend_shelfmates.dto.UpdateUserRequest;
+import com.dci.shelfmates.backend_shelfmates.exception.UserNotFoundException;
 import com.dci.shelfmates.backend_shelfmates.model.Role;
 import com.dci.shelfmates.backend_shelfmates.model.User;
 import com.dci.shelfmates.backend_shelfmates.repository.RoleRepository;
 import com.dci.shelfmates.backend_shelfmates.repository.UserRepository;
+import com.dci.shelfmates.backend_shelfmates.security.CustomUserDetails;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.BeforeEach;
@@ -15,14 +18,24 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors;
+import org.springframework.security.web.FilterChainProxy;
+import org.springframework.security.web.context.SecurityContextPersistenceFilter;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
+import org.springframework.test.web.servlet.setup.MockMvcBuilders;
+import org.springframework.web.context.WebApplicationContext;
+
 import static org.junit.jupiter.api.Assertions.*;
+
+import java.util.Arrays;
 import java.util.Set;
 
+import static org.springframework.security.test.web.servlet.setup.SecurityMockMvcConfigurers.springSecurity;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
@@ -43,8 +56,16 @@ public class AuthIntegrationTest {
     @Autowired
     private PasswordEncoder passwordEncoder;
 
+    @Autowired
+    private FilterChainProxy springSecurityFilterChain;
+
+
     @BeforeEach
-    void setUp() {
+    void setUp(WebApplicationContext context) {
+
+        mockMvc = MockMvcBuilders.webAppContextSetup(context)
+                .apply(springSecurity())
+                .build();
 
         //empty the database before the test
         userRepository.deleteAll();
@@ -129,8 +150,114 @@ public class AuthIntegrationTest {
     }
 
     @Test
-    void updateUser_returns200() {
+    void updateUser_returns200() throws Exception {
 
+        // first login the user and get jwt back
+        LoginUserRequest request = new LoginUserRequest("test@example.com", "password123");
+        String loginJson = new ObjectMapper().writeValueAsString(request);
+
+        MvcResult loginResult = mockMvc.perform(post("/api/auth/login")
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .content(loginJson))
+                .andExpect(status().isOk())
+                .andExpect(header().exists("Set-Cookie"))
+                .andReturn();
+
+        // get the jwt
+        String setCookieHeader = loginResult.getResponse().getHeader("Set-Cookie");
+        assertNotNull(setCookieHeader, "JWT cookie not set");
+        System.out.println(setCookieHeader);
+
+        // only get the value of the cookie
+        String jwt = null;
+        for (String cookiePart : setCookieHeader.split(";")) {
+            if (cookiePart.startsWith("jwt=")) {
+                jwt = cookiePart.substring("jwt=".length());
+                break;
+            }
+        }
+        assertNotNull(jwt, "JWT not found in cookie");
+
+
+        String updatedName = "ChangedUser";
+        String updatedPassword = "NewPassword";
+        UpdateUserRequest updateUserRequest = new UpdateUserRequest(updatedPassword, updatedName, "test@example.com");
+
+        String updateJson = new ObjectMapper().writeValueAsString(updateUserRequest);
+
+        User user = userRepository.findByEmail("test@example.com").orElseThrow(
+                () -> new UserNotFoundException("test@example.com")
+                                                                              );
+
+        Long id = user.getId();
+        System.out.println(user);
+
+//        MvcResult updateResult = mockMvc.perform(put("/api/auth/{id}", id)
+//                                                         .contentType(MediaType.APPLICATION_JSON)
+//                                                         .content(updateJson)
+//                                                         .header("Cookie", "jwt=" + jwt))
+//                .andExpect(status().isOk())
+//                .andReturn();
+        this.mockMvc.perform(put("/api/auth/{id}", 1L)
+                                     .with(SecurityMockMvcRequestPostProcessors.user(
+                                             new CustomUserDetails(1L, "test@example.com", "password123",
+                                                                   Set.of(new SimpleGrantedAuthority("ROLE_USER")))
+                                                                                    ))
+                                     .contentType(MediaType.APPLICATION_JSON)
+                                     .content(updateJson))
+                    .andExpect(status().isOk());
+         user = userRepository.findByEmail("test@example.com").orElseThrow(
+                () -> new UserNotFoundException("test@example.com")
+                                                                              );
+        System.out.println(user);
+    }
+
+
+    @Test
+    void updateUser_returns200_gpt() throws Exception {
+
+        // 1️⃣ Log in the test user and extract the JWT cookie
+        LoginUserRequest loginRequest = new LoginUserRequest("test@example.com", "password123");
+        String loginJson = new ObjectMapper().writeValueAsString(loginRequest);
+
+        MvcResult loginResult = mockMvc.perform(post("/api/auth/login")
+                                                        .contentType(MediaType.APPLICATION_JSON)
+                                                        .content(loginJson))
+                                       .andExpect(status().isOk())
+                                       .andExpect(header().exists("Set-Cookie"))
+                                       .andReturn();
+
+        // Extract the JWT from the Set-Cookie header
+        String setCookieHeader = loginResult.getResponse().getHeader("Set-Cookie");
+        String jwtCookie = Arrays.stream(setCookieHeader.split(";"))
+                                 .filter(s -> s.startsWith("jwt="))
+                                 .findFirst()
+                                 .orElseThrow(() -> new RuntimeException("JWT cookie not found"))
+                                 .substring("jwt=".length());
+
+        // 2️⃣ Prepare the update request
+        String updatedName = "ChangedUser";
+        String updatedPassword = "NewPassword";
+        UpdateUserRequest updateUserRequest = new UpdateUserRequest(updatedPassword, updatedName, "test@example.com");
+        String updateJson = new ObjectMapper().writeValueAsString(updateUserRequest);
+
+        // 3️⃣ Get the user's ID from the repository
+        User user = userRepository.findByEmail("test@example.com")
+                                  .orElseThrow(() -> new UserNotFoundException("test@example.com"));
+        Long userId = user.getId();
+
+        // 4️⃣ Perform the update request with the JWT cookie
+        mockMvc.perform(put("/api/auth/{id}", userId)
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .content(updateJson)
+                                .header("Cookie", "jwt=" + jwtCookie))
+               .andExpect(status().isOk());
+
+        // 5️⃣ Verify the user was updated
+        User updatedUser = userRepository.findById(userId)
+                                         .orElseThrow(() -> new UserNotFoundException("test@example.com"));
+        assertEquals(updatedName, updatedUser.getDisplayName());
+        assertTrue(passwordEncoder.matches(updatedPassword, updatedUser.getPassword()));
     }
 
 

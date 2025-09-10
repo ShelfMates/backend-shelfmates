@@ -15,6 +15,7 @@ import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
 
 import java.io.IOException;
+import java.util.stream.Collectors;
 
 @Component
 @RequiredArgsConstructor
@@ -35,17 +36,27 @@ public class JwtCookieFilter extends OncePerRequestFilter {
             for (Cookie cookie : cookies) {
                 if ("jwt".equals(cookie.getName())) {
                     String token = cookie.getValue();
-                    String email = jwtService.extractSubject(token); // implement this in JwtService
-                    User user = userRepository.findById(Long.valueOf(email)).orElse(null);
+//                    String email = jwtService.extractSubject(token);
+//                    User user = userRepository.findById(Long.valueOf(email)).orElse(null);
+                    Long userId = Long.valueOf(jwtService.extractSubject(token));
+                    User user = userRepository.findById(userId).orElse(null);
 
                     // this converts a user from the db to something spring security can actually understand :D
                     if (user != null) {
+                        // this makes use of the custom user details and fixes a bug where ids were converted to strings
+                        CustomUserDetails userDetails = new CustomUserDetails(
+                                user.getId(),
+                                user.getEmail(),
+                                user.getPassword(),
+                                user.getRoles().stream()
+                                    .map(role -> new SimpleGrantedAuthority(role.getName()))
+                                    .collect(Collectors.toSet())
+                        );
+
+
                         UsernamePasswordAuthenticationToken auth =
                                 new UsernamePasswordAuthenticationToken(
-                                        user, null,
-                                        user.getRoles().stream()
-                                            .map(role -> new SimpleGrantedAuthority(role.getName()))
-                                            .toList()
+                                      userDetails, null, userDetails.getAuthorities()
                                 );
                         SecurityContextHolder.getContext().setAuthentication(auth);
                     }
