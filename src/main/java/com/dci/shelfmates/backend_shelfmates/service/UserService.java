@@ -49,8 +49,6 @@ public class UserService {
                 .password(encoder.encode((request.getPassword())))
                 .displayName(request.getDisplayName())
                 .roles(Set.of(userRole))
-                .createdAt(LocalDateTime.now())
-                .updatedAt(LocalDateTime.now())
                 .build();
 
         userRepository.save(newUser);
@@ -86,8 +84,6 @@ public class UserService {
         if(request.displayName() != null && !request.displayName().isBlank()) {
             user.setDisplayName(request.displayName());
         }
-
-        user.setUpdatedAt(LocalDateTime.now());
 
         return userRepository.save(user);
     }

@@ -3,6 +3,8 @@ package com.dci.shelfmates.backend_shelfmates.model;
 
 import jakarta.persistence.*;
 import lombok.*;
+import org.hibernate.annotations.CreationTimestamp;
+import org.hibernate.annotations.UpdateTimestamp;
 
 import java.time.LocalDateTime;
 import java.util.HashSet;
@@ -28,7 +30,10 @@ public class User {
     private String password; // this can be null if a Oauth login is used
     private String displayName;
 
+    @CreationTimestamp
     private LocalDateTime createdAt;
+
+    @UpdateTimestamp
     private LocalDateTime updatedAt;
 
     // User - Roles many-to-many relationship
