@@ -46,7 +46,6 @@ public class Oauth2UserService extends DefaultOAuth2UserService {
                         User newUser = new User();
                         newUser.setEmail(email);
                         newUser.setDisplayName(oAuth2User.getAttribute("name"));
-                        newUser.setCreatedAt(LocalDateTime.now());
 
                         // fetch the default role "USER" from the db
                         Role role = roleRepository.findByName("ROLE_USER")

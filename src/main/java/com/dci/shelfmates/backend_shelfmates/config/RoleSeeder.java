@@ -3,6 +3,8 @@ package com.dci.shelfmates.backend_shelfmates.config;
 import com.dci.shelfmates.backend_shelfmates.model.Role;
 import com.dci.shelfmates.backend_shelfmates.repository.RoleRepository;
 import lombok.RequiredArgsConstructor;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.stereotype.Component;
 
@@ -13,6 +15,7 @@ import java.util.List;
 public class RoleSeeder implements CommandLineRunner {
 
     private final RoleRepository roleRepository;
+    private static final Logger logger = LoggerFactory.getLogger(RoleSeeder.class);
 
     // this will have a list of roles and then iterate over that list to see if that role already exists
     // if not the role will be added to the database
@@ -27,7 +30,6 @@ public class RoleSeeder implements CommandLineRunner {
                 return roleRepository.save(role);
             });
         }
-        // replace this with logging
-        System.out.println("Roles seeded: " + roles);
+        logger.info("--> Default Roles seeded: {}", roles);
     }
 }

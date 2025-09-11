@@ -3,6 +3,7 @@ package com.dci.shelfmates.backend_shelfmates.service;
 import com.dci.shelfmates.backend_shelfmates.dto.LoginUserRequest;
 import com.dci.shelfmates.backend_shelfmates.dto.RegisterUserRequest;
 import com.dci.shelfmates.backend_shelfmates.dto.UpdateUserRequest;
+import com.dci.shelfmates.backend_shelfmates.exception.UserNotFoundException;
 import com.dci.shelfmates.backend_shelfmates.model.Role;
 import com.dci.shelfmates.backend_shelfmates.model.User;
 import com.dci.shelfmates.backend_shelfmates.repository.RoleRepository;
@@ -48,8 +49,6 @@ public class UserService {
                 .password(encoder.encode((request.getPassword())))
                 .displayName(request.getDisplayName())
                 .roles(Set.of(userRole))
-                .createdAt(LocalDateTime.now())
-                .updatedAt(LocalDateTime.now())
                 .build();
 
         userRepository.save(newUser);
@@ -68,14 +67,14 @@ public class UserService {
 
         // generate a token for the authenticated user
         User user = userRepository.findByEmail(request.email())
-                .orElseThrow(() -> new RuntimeException("User: " + request.email() + " not found!"));
+                .orElseThrow(() -> new UserNotFoundException(request.email()));
         return jwtService.generateToken(user);
     }
 
     @Transactional
     public User update(Long id, UpdateUserRequest request) {
         User user = userRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("User not found"));
+                .orElseThrow(() -> new UserNotFoundException(id));
 
         // update fields
         if(request.password() != null && !request.password().isBlank()) {
@@ -86,8 +85,6 @@ public class UserService {
             user.setDisplayName(request.displayName());
         }
 
-        user.setUpdatedAt(LocalDateTime.now());
-
         return userRepository.save(user);
     }
 
@@ -96,11 +93,9 @@ public class UserService {
     @Transactional
     public void delete(Long id) {
         User user = userRepository.findById(id)
-                                  .orElseThrow(() -> new RuntimeException("User not found!"));
+                                  .orElseThrow(() -> new UserNotFoundException(id));
 
         // this is needed to avoid hibernate conflict with loading several sets at the same time
-        // remove user from all roles users sets
-        // user.getRoles().forEach(role -> role.getUsers().remove(user));
 
         List<Role> roles = new ArrayList<>(user.getRoles());
         for (Role role : roles) {

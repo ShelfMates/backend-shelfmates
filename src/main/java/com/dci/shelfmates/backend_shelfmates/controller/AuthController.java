@@ -26,7 +26,7 @@ public class AuthController {
 
         ResponseCookie cookie = ResponseCookie.from("jwt", token)
                 .httpOnly(true)
-                .secure(true)
+                .secure(false)
                 .path("/")
                 .maxAge(24 * 60 * 60)
                 .build();
@@ -41,6 +41,7 @@ public class AuthController {
         String jwt = userService.login(request);
         ResponseCookie cookie = ResponseCookie.from("jwt", jwt)
                                               .httpOnly(true)
+                                              .secure(false)
                                               .path("/")
                                               .maxAge(24 * 60 * 60)
                                               .build();
@@ -61,7 +62,6 @@ public class AuthController {
     @PutMapping("/{id}")
     public ResponseEntity<String> update(@PathVariable Long id, @RequestBody UpdateUserRequest request) {
         userService.update(id, request);
-
         return ResponseEntity.ok("User information changed successfully!");
     }
 

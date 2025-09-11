@@ -1,5 +1,6 @@
 package com.dci.shelfmates.backend_shelfmates.security;
 
+import com.dci.shelfmates.backend_shelfmates.exception.UserNotFoundException;
 import com.dci.shelfmates.backend_shelfmates.model.User;
 import com.dci.shelfmates.backend_shelfmates.repository.UserRepository;
 import jakarta.servlet.ServletException;
@@ -33,7 +34,7 @@ public class OAuth2LoginSuccessHandler implements AuthenticationSuccessHandler {
 
         // load user entity from the database
         User user = userRepository.findByEmail(email)
-                .orElseThrow(() -> new RuntimeException("User not found :("));
+                .orElseThrow(() -> new UserNotFoundException(email));
 
         // build a token
         String token = jwtService.generateToken(user);
