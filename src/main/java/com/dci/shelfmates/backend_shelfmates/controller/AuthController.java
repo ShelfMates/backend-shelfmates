@@ -4,6 +4,7 @@ import com.dci.shelfmates.backend_shelfmates.dto.LoginUserRequest;
 import com.dci.shelfmates.backend_shelfmates.dto.RegisterUserRequest;
 import com.dci.shelfmates.backend_shelfmates.dto.UpdateUserRequest;
 import com.dci.shelfmates.backend_shelfmates.model.User;
+import com.dci.shelfmates.backend_shelfmates.security.CustomUserDetails;
 import com.dci.shelfmates.backend_shelfmates.service.UserService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpHeaders;
@@ -69,16 +70,20 @@ public class AuthController {
     @GetMapping("/meme")
     @ResponseBody
     public String getMe(Authentication authentication) {
+        System.out.println("Authentication: " + authentication);
         if(authentication == null) {
             return "Not authenticated!";
         }
 
         Object principal = authentication.getPrincipal();
-        if (!(principal instanceof User user)) {
-            return "Not authenticated";
+        if (!(principal instanceof CustomUserDetails userDetails)) {
+            System.out.println("Principal: " + principal.toString());
+            return "Say what?";
         }
 
-        return "Hello " + user.getDisplayName() +"! " + "Your email is: " + user.getEmail();
+
+
+        return "Hello " + userDetails.getUsername() +"! " + "Your email is: " + userDetails.getUsername();
     }
 
 

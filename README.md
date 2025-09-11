@@ -1,4 +1,10 @@
-# backend-shelfmates
+# Backend for the Shelfmates Project
+Shelfmates is a management tool for book clubs.
+
+## How to run this Project
+
+### ENVs
+
 
 ## User Stories
 
