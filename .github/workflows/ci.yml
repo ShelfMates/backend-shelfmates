@@ -21,3 +21,5 @@ jobs:
 
       - name: Run tests
         run: mvn -B clean verify
+        env:
+          SPRING_PROFILES_ACTIVE: test # this sets the profile for testing
