@@ -33,6 +33,7 @@ import org.springframework.web.context.WebApplicationContext;
 import static org.junit.jupiter.api.Assertions.*;
 
 import java.util.Arrays;
+import java.util.Optional;
 import java.util.Set;
 
 import static org.springframework.security.test.web.servlet.setup.SecurityMockMvcConfigurers.springSecurity;
@@ -59,9 +60,11 @@ public class AuthIntegrationTest {
     @Autowired
     private FilterChainProxy springSecurityFilterChain;
 
+    @Autowired
+    WebApplicationContext context;
 
     @BeforeEach
-    void setUp(WebApplicationContext context) {
+    void setUp() {
 
         mockMvc = MockMvcBuilders.webAppContextSetup(context)
                 .apply(springSecurity())
@@ -159,10 +162,16 @@ public class AuthIntegrationTest {
 
         String updateJson = new ObjectMapper().writeValueAsString(updateUserRequest);
 
+        // get the user ID for further use
+        User user = userRepository.findByEmail("test@example.com")
+                                  .orElseThrow(() -> new UserNotFoundException("test@example.com"));
+        Long userId = user.getId();
+
+
         // change user details
-        this.mockMvc.perform(put("/api/auth/{id}", 1L)
+        this.mockMvc.perform(put("/api/auth/{id}", userId)
                                      .with(SecurityMockMvcRequestPostProcessors.user(
-                                             new CustomUserDetails(1L, "test@example.com", "password123",
+                                             new CustomUserDetails(userId, "test@example.com", "password123",
                                                                    Set.of(new SimpleGrantedAuthority("ROLE_USER")))
                                                                                     ))
                                      .contentType(MediaType.APPLICATION_JSON)
@@ -180,9 +189,29 @@ public class AuthIntegrationTest {
                                        .andExpect(header().exists("Set-Cookie"));
 
         // check if the username was changed
-        User user = userRepository.findById(1L).orElseThrow(() -> new UserNotFoundException(1L));
+        user = userRepository.findById(userId).orElseThrow(() -> new UserNotFoundException(userId));
         assertEquals(updatedName, user.getDisplayName());
 
+    }
+
+    @Test
+    void deleteUser_returns204() throws Exception {
+
+        // get the user ID for further use
+        User user = userRepository.findByEmail("test@example.com")
+                                  .orElseThrow(() -> new UserNotFoundException("test@example.com"));
+        Long userId = user.getId();
+
+        // delete user
+        mockMvc.perform(delete("/api/auth/{id}", userId)
+                                     .with(SecurityMockMvcRequestPostProcessors.user(
+                                             new CustomUserDetails(userId, "test@example.com", "password123",
+                                                                   Set.of(new SimpleGrantedAuthority("ROLE_USER")))
+                                                                                    )))
+                .andExpect(status().isNoContent());
+
+        // check if user is deleted
+        assertEquals(0, userRepository.count());
     }
 
 }
