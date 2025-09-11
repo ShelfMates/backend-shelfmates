@@ -1,9 +1,6 @@
 package com.dci.shelfmates.backend_shelfmates.service;
 
-import com.dci.shelfmates.backend_shelfmates.dto.LoginUserRequest;
-import com.dci.shelfmates.backend_shelfmates.dto.PrivateUserResponse;
-import com.dci.shelfmates.backend_shelfmates.dto.RegisterUserRequest;
-import com.dci.shelfmates.backend_shelfmates.dto.UpdateUserRequest;
+import com.dci.shelfmates.backend_shelfmates.dto.*;
 import com.dci.shelfmates.backend_shelfmates.exception.UserNotFoundException;
 import com.dci.shelfmates.backend_shelfmates.model.Role;
 import com.dci.shelfmates.backend_shelfmates.model.User;
@@ -127,5 +124,12 @@ public class UserService {
                 user.getUpdatedAt(),
                 roleNames
         );
+    }
+
+    public PublicUserResponse getPublicUser(Long id) {
+        User user = userRepository.findById(id).orElseThrow(
+                () -> new UserNotFoundException(id));
+
+        return new PublicUserResponse(user.getDisplayName(), user.getCreatedAt());
     }
 }
