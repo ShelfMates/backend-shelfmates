@@ -195,6 +195,37 @@ public class AuthIntegrationTest {
     }
 
     @Test
+    void updateUser_withWrongCredentials_returns403() throws Exception {
+        String updatedName = "ChangedUser";
+        String updatedPassword = "NewPassword";
+
+        UpdateUserRequest updateUserRequest = new UpdateUserRequest(updatedPassword, updatedName, "test@example.com");
+
+        String updateJson = new ObjectMapper().writeValueAsString(updateUserRequest);
+
+        // get the user ID for further use
+        User user = userRepository.findByEmail("test@example.com")
+                                  .orElseThrow(() -> new UserNotFoundException("test@example.com"));
+        Long userId = user.getId();
+
+
+        // try to change user details
+        mockMvc.perform(put("/api/auth/{id}", userId)
+                                     .with(SecurityMockMvcRequestPostProcessors.user(
+                                             new CustomUserDetails(userId + 1, "test@example.com", "password123",
+                                                                   Set.of(new SimpleGrantedAuthority("ROLE_USER")))
+                                                                                    ))
+                                     .contentType(MediaType.APPLICATION_JSON)
+                                     .content(updateJson))
+                    .andExpect(status().isForbidden());
+
+        // test if the user was unchanged
+        user = userRepository.findByEmail("test@example.com")
+                             .orElseThrow(() -> new UserNotFoundException("test@example.com"));
+        assertEquals("Test User", user.getDisplayName());
+    }
+
+    @Test
     void deleteUser_returns204() throws Exception {
 
         // get the user ID for further use
@@ -212,6 +243,25 @@ public class AuthIntegrationTest {
 
         // check if user is deleted
         assertEquals(0, userRepository.count());
+    }
+
+    @Test
+    void deleteUser_withWrongCredentials_returns403() throws Exception {
+        // get the user ID for further use
+        User user = userRepository.findByEmail("test@example.com")
+                                  .orElseThrow(() -> new UserNotFoundException("test@example.com"));
+        Long userId = user.getId();
+
+        // try to delete user
+        mockMvc.perform(delete("/api/auth/{id}", userId)
+                                .with(SecurityMockMvcRequestPostProcessors.user(
+                                        new CustomUserDetails(userId + 1, "test@example.com", "password123",
+                                                              Set.of(new SimpleGrantedAuthority("ROLE_USER")))
+                                                                               )))
+               .andExpect(status().isForbidden());
+
+        // check if user is still there
+        assertEquals(1, userRepository.count());
     }
 
 }
