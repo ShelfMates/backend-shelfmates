@@ -17,6 +17,9 @@ spring:
     ansi:
       enabled: always
 
+  jwt:
+    secret: ${JWT_SECRET}
+
   security:
     oauth2:
       client:

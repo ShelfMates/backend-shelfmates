@@ -1,4 +1,12 @@
-# backend-shelfmates
+# Backend for the Shelfmates Project
+Shelfmates is a management tool for book clubs.
+
+## How to run this Project
+
+### ENVs
+${JWT_SECRET} - used to sign the jwt tokens
+${GOOGLE_CLIENT_ID} - used for oauth2
+${GOOGLE_CLIENT_SECRET} - used for oauth2
 
 ## User Stories
 

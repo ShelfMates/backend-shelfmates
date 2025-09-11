@@ -1,4 +1,4 @@
-name: CI
+name: Integration Testing
 
 on:
   pull_request:   # run on every pull request
@@ -23,3 +23,4 @@ jobs:
         run: mvn -B clean verify
         env:
           SPRING_PROFILES_ACTIVE: test # this sets the profile for testing
+          JWT_SECRET: ${{ secrets.JWT_SECRET }}

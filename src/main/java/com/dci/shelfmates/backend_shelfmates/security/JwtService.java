@@ -5,6 +5,7 @@ import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import javax.crypto.SecretKey;
@@ -16,7 +17,9 @@ import java.util.function.Function;
 @Service
 public class JwtService {
     // this needs to be an env variable
-    private String secretKey = "superverysecretkeysuperverysecretkeysuperverysecretkeysuperverysecretkeysuperverysecretkeysuperverysecretkey";
+    @Value("${jwt.secret}")
+    private String secretKey;
+
 
     public String generateToken(User user) {
         // to add more claims, just put them in the hashmap
