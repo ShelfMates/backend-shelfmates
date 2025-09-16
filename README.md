@@ -5,8 +5,11 @@ Shelfmates is a management tool for book clubs.
 
 ### ENVs
 JWT_SECRET - used to sign the jwt tokens
-GOOGLE_CLIENT_ID - used for oauth2
-GOOGLE_CLIENT_SECRET - used for oauth2
+GOOGLE_CLIENT_ID - google client id used for oauth2
+GOOGLE_CLIENT_SECRET - google secret used for oauth2
+SHELFMATES_DB_URL - Database URL
+SHELFMATES_DB_USER - Database user
+SHELFMATES_DB_PASSWORD - Database password
 
 ## User Stories
 
