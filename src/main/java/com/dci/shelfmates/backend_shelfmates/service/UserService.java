@@ -1,8 +1,6 @@
 package com.dci.shelfmates.backend_shelfmates.service;
 
-import com.dci.shelfmates.backend_shelfmates.dto.LoginUserRequest;
-import com.dci.shelfmates.backend_shelfmates.dto.RegisterUserRequest;
-import com.dci.shelfmates.backend_shelfmates.dto.UpdateUserRequest;
+import com.dci.shelfmates.backend_shelfmates.dto.*;
 import com.dci.shelfmates.backend_shelfmates.exception.UserNotFoundException;
 import com.dci.shelfmates.backend_shelfmates.model.Role;
 import com.dci.shelfmates.backend_shelfmates.model.User;
@@ -21,6 +19,7 @@ import org.springframework.stereotype.Service;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -106,5 +105,31 @@ public class UserService {
 
 
         userRepository.delete(user);
+    }
+
+    public PrivateUserResponse getMe(Long id) {
+        User user = userRepository.findById(id).orElseThrow(
+                () -> new UserNotFoundException(id));
+
+        // get just the name of roles
+        Set<String> roleNames = user.getRoles().stream()
+                .map(Role::getName)
+                .collect(Collectors.toSet());
+
+        return new PrivateUserResponse(
+                user.getId(),
+                user.getDisplayName(),
+                user.getEmail(),
+                user.getCreatedAt(),
+                user.getUpdatedAt(),
+                roleNames
+        );
+    }
+
+    public PublicUserResponse getPublicUser(Long id) {
+        User user = userRepository.findById(id).orElseThrow(
+                () -> new UserNotFoundException(id));
+
+        return new PublicUserResponse(user.getDisplayName(), user.getCreatedAt());
     }
 }
