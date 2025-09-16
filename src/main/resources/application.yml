@@ -3,9 +3,9 @@ spring:
     name: backend-shelfmates
 
   datasource:
-    url: jdbc:postgresql://localhost:5432/shelfmates
-    username: postgres
-    password: your_secure_password
+    url: ${SHELFMATES_DB_URL}
+    username: ${SHELFMATES_DB_USER}
+    password: ${SHELFMATES_DB_PASSWORD}
     driver-class-name: org.postgresql.Driver
 
   jpa:
