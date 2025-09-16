@@ -26,7 +26,7 @@ public class UserController {
 
     @GetMapping("/{id}")
     @ResponseBody
-    public ResponseEntity<PublicUserResponse> getMe(@PathVariable Long id) {
+    public ResponseEntity<PublicUserResponse> getUser(@PathVariable Long id) {
         PublicUserResponse response = userService.getPublicUser(id);
 
         return ResponseEntity.ok(response);
